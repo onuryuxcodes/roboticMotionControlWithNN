@@ -2,7 +2,7 @@
 #  x ̇ = f (x, u)
 import math
 import numpy as np
-from constants import *
+from dynamics.constants import *
 
 
 def f_dynamics_state_space(x1, x2, u):
