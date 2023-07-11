@@ -12,4 +12,4 @@ def f_dynamics_state_space(x1, x2, u):
     u: control input
     """
     return (1 / m * math.pow(length, 2)) * m * g * length * \
-           rnp.sin(x1) + u - b_friction * x2
+           np.sin(x1) + u - b_friction * x2
