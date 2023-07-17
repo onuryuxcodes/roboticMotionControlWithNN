@@ -2,7 +2,7 @@ import numpy as np
 from log_messages import print_loss
 
 
-def train(nn_lyapunov, nn_porlicy, t, e, f_of_e, d_friction_constant, alpha, max_iterations, optimizer_l, optimizer_p):
+def train(nn_lyapunov, nn_policy, t, e, f_of_e, d_friction_constant, alpha, max_iterations, optimizer_l, optimizer_p):
     n = len(e)
     e.requires_grad = True
     for iteration in range(max_iterations):
