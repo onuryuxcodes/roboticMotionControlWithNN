@@ -1,5 +1,5 @@
 import numpy as np
-from log_messages import print_loss
+from training.log_messages import print_loss
 
 
 def train(nn_lyapunov, nn_policy, t, e, f_of_e, d_friction_constant, alpha, max_iterations, optimizer_l, optimizer_p):
