@@ -1,5 +1,6 @@
 import math
-from constants import *
+from dynamics.constants import *
+import torch
 
 
 def p_1(t):
@@ -42,4 +43,5 @@ def f_e2(e2, t, u):
 
 
 def f_of_e(e1, e2, t, u):
-    return f_e1(e1, e2, t), f_e2(e2, t, u)
+    return torch.tensor([[f_e1(e1, e2, t), f_e2(e2, t, u)]])
+
