@@ -16,6 +16,7 @@ def train(nn_lyapunov, nn_policy, t, e, f_of_e, b_friction_constant, alpha, max_
             e_grad = e.grad
             derivative_lyapunov_wrt_ei = e_grad[i]
             e.grad.zero_()
+            # TODO fix error derivative_lyapunov_wrt_ei is always zero
             # print(derivative_lyapunov_wrt_ei)
             f_e_i = f_of_e(e_i[0], e_i[1], t[i], u_lyapunov_out[i])
             loss = + max(alpha * (abs(e_i[0]) + abs(e_i[1])) - u_lyapunov_out[i], 0) + \
