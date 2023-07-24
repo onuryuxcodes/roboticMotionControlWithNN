@@ -16,8 +16,11 @@ def train(nn_lyapunov, nn_policy, t, e, f_of_e, b_friction_constant, alpha, max_
             # e_grad = e.grad
             # derivative_lyapunov_wrt_ei = e_grad[i]
             # e.grad.zero_()
-            weights = nn_lyapunov.layer1.weight.data
-            derivative_lyapunov_wrt_ei = torch.sum(weights, dim=0)
+            weights1 = nn_lyapunov.layer1.weight.data
+            weights2 = nn_lyapunov.layer2.weight.data
+            drv_e1 = torch.sum(weights1[:, 0] * weights2)
+            drv_e2 = torch.sum(weights1[:, 1] * weights2)
+            derivative_lyapunov_wrt_ei = torch.tensor([drv_e1, drv_e2])
             # print(derivative_lyapunov_wrt_ei)
             f_e_i = f_of_e(e_i[0], e_i[1], t[i], u_lyapunov_out[i])
             loss = + max(alpha * (abs(e_i[0]) + abs(e_i[1])) - u_lyapunov_out[i], 0) + \
