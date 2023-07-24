@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # u = [-1, 1]
     # print(f_dynamics_state_space(x1, x2, u))
     e, t = sample_data_points()
-    learning_rate = 0.01
+    learning_rate = 0.0009
     neural_network_for_lyapunov = NeuralNetworkLyapunov(
         input_dim=2,
         neurons_hidden_layer=5,
@@ -30,7 +30,7 @@ if __name__ == '__main__':
         optimizer_l=optimizer1,
         optimizer_p=optimizer2,
         alpha=1,
-        max_iterations=100,
+        max_iterations=1000,
         b_friction_constant=b_friction,
         e=e,
         t=t,
