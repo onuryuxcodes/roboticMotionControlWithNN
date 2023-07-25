@@ -7,6 +7,7 @@ e_interval_high = 10
 t_dim = 1
 t_interval_low = 0
 t_interval_high = 50
+alpha = 1
 
 
 def sample_data_points():
