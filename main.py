@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # x2 = [0, 1]
     # u = [-1, 1]
     # print(f_dynamics_state_space(x1, x2, u))
-    e, t = sample_data_points()
+    e, t, concatenated_e_t = sample_data_points()
     learning_rate = 0.0009
     neural_network_for_lyapunov = NeuralNetworkLyapunov(
         input_dim=2,
@@ -34,6 +34,7 @@ if __name__ == '__main__':
         b_friction_constant=b_friction,
         e=e,
         t=t,
+        e_and_t=concatenated_e_t,
         f_of_e=f_of_e
     )
 
