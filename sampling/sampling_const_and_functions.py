@@ -2,8 +2,8 @@ import torch
 
 N = 500
 e_dim = 2
-e_interval_low = -5
-e_interval_high = 5
+e_interval_low = -10
+e_interval_high = 10
 t_dim = 1
 t_interval_low = 0
 t_interval_high = 50
