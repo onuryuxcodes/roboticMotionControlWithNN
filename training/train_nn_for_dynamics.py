@@ -1,15 +1,22 @@
 import numpy as np
-
+import pandas as pd
 from training.log_messages import print_loss
+from dynamics.constants import column_list
 import torch
 
 
-def train(nn_lyapunov, nn_policy, t, e, e_and_t, f_of_e, b_friction_constant, alpha, max_iterations, optimizer_l, optimizer_p):
+def train(nn_lyapunov, nn_policy, t, e, e_and_t, f_of_e, b_friction_constant, alpha, max_iterations, optimizer_l,
+          optimizer_p):
     n = len(e)
+    loss_each_iter = []
+    avg_policy_each_iter = []
+    avg_u_each_iter = []
     for iteration in range(max_iterations):
         u_lyapunov_out = nn_lyapunov(e)
         policy_out = nn_policy(e_and_t)
         loss = 0
+        avg_policy = 0
+        avg_u = 0
         for i in range(n):
             e_i = e[i]
             # grd = torch.zeros(u_shape)
@@ -25,10 +32,15 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, f_of_e, b_friction_constant, al
             # print(derivative_lyapunov_wrt_ei)
             f_e_i = f_of_e(e_i[0], e_i[1], t[i], policy_out[i])
             loss = + max(alpha * (abs(e_i[0]) + abs(e_i[1])) - u_lyapunov_out[i], 0) + \
-                max(torch.linalg.norm(e_i) - b_friction_constant, 0) * \
-                max(torch.inner(derivative_lyapunov_wrt_ei, f_e_i), 0)
+                   max(torch.linalg.norm(e_i) - b_friction_constant, 0) * \
+                   max(torch.inner(derivative_lyapunov_wrt_ei, f_e_i), 0)
+            avg_u = + u_lyapunov_out[i].item()
+            avg_policy = + policy_out[i].item()
 
         loss = loss / n
+        loss_each_iter.append(loss.item())
+        avg_policy_each_iter.append(avg_policy / n)
+        avg_u_each_iter.append(avg_u / n)
         print_loss(loss, iteration)
         optimizer_l.zero_grad()
         optimizer_p.zero_grad()
@@ -36,6 +48,8 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, f_of_e, b_friction_constant, al
         optimizer_l.step()
         optimizer_p.step()
 
-
-
-
+    zipped_list_values_each_iter = \
+        list(zip(loss_each_iter,
+                 avg_policy_each_iter,
+                 avg_u_each_iter))
+    return pd.DataFrame(zipped_list_values_each_iter,  columns=column_list)
