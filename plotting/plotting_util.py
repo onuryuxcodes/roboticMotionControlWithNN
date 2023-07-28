@@ -1,7 +1,12 @@
 import seaborn as sns
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('TkAgg')
 
 
-def line_plot_with_seaborn(dataframe, x_col_name, y_col_name, hue=None):
-    sns.lineplot(data=dataframe, x=x_col_name, y=y_col_name, hue=hue)
+def line_plot_with_seaborn(dataframe, col_names_list, hue=None):
+    sns.lineplot(data=dataframe[col_names_list], hue=hue)
+    plt.show()
+
 
 
