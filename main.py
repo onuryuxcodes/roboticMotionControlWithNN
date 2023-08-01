@@ -36,6 +36,7 @@ if __name__ == '__main__':
         b_friction_constant=b_friction,
         e=e,
         t=t,
+        d=1,
         e_and_t=concatenated_e_t,
         zeros_and_t=zeros_and_t,
         f_of_e=f_of_e
@@ -43,6 +44,6 @@ if __name__ == '__main__':
     e = sample_e_only(5)
     e1 = e[:, 0].numpy()
     e2 = e[:, 1].numpy()
-    u_lyapunov_z = nn_lyapunov_trained(e)[:, 0].detach().numpy()
-    scatter_plot_3d(e1, e2, u_lyapunov_z)
+    lyapunov_z = nn_lyapunov_trained(e)[:, 0].detach().numpy()
+    scatter_plot_3d(e1, e2, lyapunov_z)
 

@@ -1,11 +1,26 @@
-import numpy as np
-import pandas as pd
 from training.log_messages import print_loss
-from dynamics.constants import column_list
 import torch
 
 
-def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction_constant, alpha, max_iterations,
+# Falsification procedure
+def check_lyapunov_validity(nn_lyapunov, nn_policy, t, e, d, e_and_t,
+                            zeros_and_t, f_of_e, gamma, derivative_lyapunov_wrt_ei):
+    n = len(e)
+    for i in range(n):
+        e_i = e[i]
+        e_i1 = e[i][0]
+        e_i2 = e[i][1]
+        policy_out = nn_policy(e_and_t, zeros_and_t)
+        f_e_i = f_of_e(e_i1, e_i2, t[i], policy_out[i])
+        is_valid_cond1 = (e_i1 ** 2 + e_i2 ** 2 > gamma) and nn_lyapunov(e_i) <= 0
+        is_valid_cond2 = (e_i1 ** 2 + e_i2 ** 2 > d) and (torch.inner(derivative_lyapunov_wrt_ei, f_e_i))
+        if not (is_valid_cond1 and is_valid_cond2):
+            return False
+    return True
+
+
+def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction_constant, d,
+          alpha, max_iterations,
           optimizer_l,
           optimizer_p):
     n = len(e)
@@ -14,8 +29,6 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
         lyapunov_out = nn_lyapunov(e)
         policy_out = nn_policy(e_and_t, zeros_and_t)
         loss = 0
-        avg_policy = 0
-        avg_u = 0
         for i in range(n):
             e_i = e[i]
             # grd = torch.zeros(u_shape)
@@ -31,7 +44,7 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
             # print(derivative_lyapunov_wrt_ei)
             f_e_i = f_of_e(e_i[0], e_i[1], t[i], policy_out[i])
             loss = + max(alpha * (abs(e_i[0]) + abs(e_i[1])) - lyapunov_out[i], 0) + \
-                   max(torch.linalg.norm(e_i) - b_friction_constant, 0) * \
+                   max(torch.linalg.norm(e_i) - d, 0) * \
                    max(torch.inner(derivative_lyapunov_wrt_ei, f_e_i), 0)
 
         loss = loss / n
