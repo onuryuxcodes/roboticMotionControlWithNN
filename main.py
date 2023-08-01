@@ -1,19 +1,13 @@
-from dynamics.inverted_pendulum import f_dynamics_state_space
 from sampling.sampling_const_and_functions import sample_data_points, sample_e_only
 from neural_network.neural_network_policy import NeuralNetworkControlPolicy
 from neural_network.neural_network_lyapunov import NeuralNetworkLyapunov
 from training.train_nn_for_dynamics import train
-from dynamics.constants import b_friction, column_list
+from dynamics.constants import b_friction
 from dynamics.bounding_f import f_of_e
 import torch
 from plotting.plotting_util import scatter_plot_3d
-import numpy as np
 
 if __name__ == '__main__':
-    # x1 = [0, 1]
-    # x2 = [0, 1]
-    # u = [-1, 1]
-    # print(f_dynamics_state_space(x1, x2, u))
     e, t, concatenated_e_t, zeros_and_t = sample_data_points()
     learning_rate = 0.001
     neural_network_for_lyapunov = NeuralNetworkLyapunov(
