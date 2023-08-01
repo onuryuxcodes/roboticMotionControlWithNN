@@ -5,13 +5,14 @@ from dynamics.constants import column_list
 import torch
 
 
-def train(nn_lyapunov, nn_policy, t, e, e_and_t, f_of_e, b_friction_constant, alpha, max_iterations, optimizer_l,
+def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction_constant, alpha, max_iterations,
+          optimizer_l,
           optimizer_p):
     n = len(e)
     loss_each_iter = []
     for iteration in range(max_iterations):
-        u_lyapunov_out = nn_lyapunov(e)
-        policy_out = nn_policy(e_and_t)
+        lyapunov_out = nn_lyapunov(e)
+        policy_out = nn_policy(e_and_t, zeros_and_t)
         loss = 0
         avg_policy = 0
         avg_u = 0
@@ -29,7 +30,7 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, f_of_e, b_friction_constant, al
             derivative_lyapunov_wrt_ei = torch.tensor([drv_e1, drv_e2])
             # print(derivative_lyapunov_wrt_ei)
             f_e_i = f_of_e(e_i[0], e_i[1], t[i], policy_out[i])
-            loss = + max(alpha * (abs(e_i[0]) + abs(e_i[1])) - u_lyapunov_out[i], 0) + \
+            loss = + max(alpha * (abs(e_i[0]) + abs(e_i[1])) - lyapunov_out[i], 0) + \
                    max(torch.linalg.norm(e_i) - b_friction_constant, 0) * \
                    max(torch.inner(derivative_lyapunov_wrt_ei, f_e_i), 0)
 

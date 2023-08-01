@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # x2 = [0, 1]
     # u = [-1, 1]
     # print(f_dynamics_state_space(x1, x2, u))
-    e, t, concatenated_e_t = sample_data_points()
+    e, t, concatenated_e_t, zeros_and_t = sample_data_points()
     learning_rate = 0.001
     neural_network_for_lyapunov = NeuralNetworkLyapunov(
         input_dim=2,
@@ -37,6 +37,7 @@ if __name__ == '__main__':
         e=e,
         t=t,
         e_and_t=concatenated_e_t,
+        zeros_and_t=zeros_and_t,
         f_of_e=f_of_e
     )
     e = sample_e_only(5)
