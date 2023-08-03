@@ -19,14 +19,13 @@ if __name__ == '__main__':
         neurons_hidden_layer=5)
     optimizer1 = torch.optim.Adam(neural_network_for_lyapunov.parameters(), lr=learning_rate)
     optimizer2 = torch.optim.Adam(neural_network_for_control_policy.parameters(), lr=learning_rate)
-    e.requires_grad = True
     nn_lyapunov_trained, nn_policy_trained, _ = train(
         nn_lyapunov=neural_network_for_lyapunov,
         nn_policy=neural_network_for_control_policy,
         optimizer_l=optimizer1,
         optimizer_p=optimizer2,
         alpha=1,
-        max_iterations=100,
+        max_iterations=2000,
         b_friction_constant=b_friction,
         e=e,
         t=t,
