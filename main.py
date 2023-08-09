@@ -9,7 +9,7 @@ from plotting.plotting_util import scatter_plot_3d
 
 if __name__ == '__main__':
     e, t, concatenated_e_t, zeros_and_t = sample_data_points()
-    learning_rate = 0.001
+    learning_rate = 0.0002
     neural_network_for_lyapunov = NeuralNetworkLyapunov(
         input_dim=2,
         neurons_hidden_layer=5,
