@@ -1,6 +1,30 @@
 from training.log_messages import print_loss, print_invalid_points_count
 import torch
 import numpy as np
+from dreal import *
+from sampling.sampling_const_and_functions import \
+    e_interval_high, \
+    e_interval_low, \
+    t_interval_high, \
+    t_interval_low
+
+
+def check_satisfies_all_domain_with_dreal(nn_lyapunov, nn_policy, d, f_of_e, gamma, derivative_lyapunov_wrt_ei):
+    config = Config()
+    config.use_polytope_in_forall = True
+    config.use_local_optimization = True
+    config.precision = 1e-2
+
+    e1 = Variable("e1")
+    e2 = Variable("e2")
+    t = Variable("t")
+
+    bound_sat = And(e_interval_low <= e1, e1 <= e_interval_high,
+                e_interval_low <= e2, e2 <= e_interval_high,
+                t <= t_interval_low, t <= t_interval_high)
+
+    cond1 = Not(e1 ** 2 + e2 ** 2 > gamma, nn_lyapunov(torch.tensor([[e1, e2]])).item() <= 0)
+    CheckSatisfiability(And(bound_sat, cond1), config)
 
 
 # Falsification procedure
@@ -74,5 +98,6 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
                 check_lyapunov_validity(nn_lyapunov, nn_policy, t, e, d, e_and_t,
                                         zeros_and_t, f_of_e, gamma, derivative_lyapunov_wrt_ei,
                                         index_list_counter_example)
+            check_satisfies_all_domain_with_dreal(nn_policy, d, f_of_e, gamma, derivative_lyapunov_wrt_ei)
 
     return nn_lyapunov, nn_policy, loss_each_iter
