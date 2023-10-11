@@ -5,7 +5,6 @@ from training.train_nn_for_dynamics import train
 from dynamics.constants import b_friction
 from dynamics.bounding_f import f_of_e
 import torch
-from plotting.plotting_util import scatter_plot_3d
 
 if __name__ == '__main__':
     e, t, concatenated_e_t, zeros_and_t = sample_data_points()
@@ -25,7 +24,7 @@ if __name__ == '__main__':
         optimizer_l=optimizer1,
         optimizer_p=optimizer2,
         alpha=1,
-        max_iterations=2000,
+        max_iterations=10000,
         b_friction_constant=b_friction,
         e=e,
         t=t,
@@ -38,5 +37,4 @@ if __name__ == '__main__':
     e1 = e[:, 0].numpy()
     e2 = e[:, 1].numpy()
     lyapunov_z = nn_lyapunov_trained(e)[:, 0].detach().numpy()
-    scatter_plot_3d(e1, e2, lyapunov_z)
 
