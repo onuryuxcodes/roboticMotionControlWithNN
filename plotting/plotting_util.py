@@ -1,12 +1,12 @@
-import seaborn as sns
+#import seaborn as sns
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('TkAgg')
 
 
-def line_plot_with_seaborn(dataframe, col_names_list, hue=None):
-    sns.lineplot(data=dataframe[col_names_list], hue=hue)
-    plt.show()
+#def line_plot_with_seaborn(dataframe, col_names_list, hue=None):
+#    sns.lineplot(data=dataframe[col_names_list], hue=hue)
+#    plt.show()
 
 
 def scatter_plot_3d(e1, e2, v):
