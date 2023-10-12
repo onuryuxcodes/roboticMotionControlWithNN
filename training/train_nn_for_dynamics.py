@@ -7,7 +7,8 @@ from sampling.sampling_const_and_functions import sample_data_points
 # Falsification procedure
 def check_lyapunov_validity(nn_lyapunov, nn_policy, t, e, d, e_and_t,
                             zeros_and_t, f_of_e, gamma, derivative_lyapunov_wrt_ei,
-                            index_list_counter_example=[]):
+                            index_list_counter_example=[],
+                            verbose=False):
     n = len(e)
     invalid_points_count = 0
     new_counter_examples = []
@@ -24,7 +25,8 @@ def check_lyapunov_validity(nn_lyapunov, nn_policy, t, e, d, e_and_t,
         if is_falsified_cond1 or is_falsified_cond2:
             invalid_points_count += 1
             new_counter_examples.append(i)
-    print_invalid_points_count(n, invalid_points_count)
+    if verbose:
+        print_invalid_points_count(n, invalid_points_count)
     return new_counter_examples == 0, torch.as_tensor(new_counter_examples)
 
 
@@ -41,16 +43,24 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
           optimizer_l,
           optimizer_p):
     loss_each_iter = []
+    training_data_each_iter = []
     index_list_counter_example = []
+    number_of_invalid_points_each_iter = []
     is_valid = False
     training_iteration = 0
     gamma = 0.0001
     while training_iteration < max_iterations and not is_valid:
         lyapunov_out = nn_lyapunov(e)
         policy_out = nn_policy(e_and_t, zeros_and_t)
-        loss_i = 0
         derivative_lyapunov_wrt_ei = calculate_derivative_wrt_ei(nn_lyapunov)
+
+        test_is_valid, invalid_data_point_index = \
+            check_lyapunov_validity(nn_lyapunov, nn_policy, t, e, d, e_and_t,
+                                    zeros_and_t, f_of_e, gamma, derivative_lyapunov_wrt_ei,
+                                    index_list_counter_example)
+        number_of_invalid_points_each_iter.append(len(invalid_data_point_index))
         n = len(e)
+        training_data_each_iter.append(n)
         loss_i = 0
         for i in range(n):
             e_i = e[i]
@@ -58,7 +68,8 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
             e_i_norm_minus_d = torch.subtract(torch.linalg.norm(e_i), d)
             mult_term = torch.mul(torch.max(e_i_norm_minus_d, torch.zeros_like(e_i[0])), torch.max(
                 torch.inner(derivative_lyapunov_wrt_ei, f_e_i), torch.zeros_like(e_i[0])))
-            max_term1 = torch.subtract(torch.mul(alpha, torch.add(torch.abs(e_i[0]), torch.abs(e_i[1]))), lyapunov_out[i])
+            max_term1 = torch.subtract(torch.mul(alpha, torch.add(torch.abs(e_i[0]), torch.abs(e_i[1]))),
+                                       lyapunov_out[i])
             loss_i = torch.add(torch.add(torch.max(max_term1, torch.zeros_like(e_i[0])), mult_term), loss_i)
         loss = torch.div(loss_i, n)
         optimizer_l.zero_grad()
@@ -76,7 +87,8 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
             test_is_valid, invalid_data_point_index = \
                 check_lyapunov_validity(nn_lyapunov, nn_policy, test_t, test_e, d, test_concatenated_e_t,
                                         test_zeros_and_t, f_of_e, gamma, derivative_lyapunov_wrt_ei,
-                                        index_list_counter_example)
+                                        index_list_counter_example,
+                                        verbose=True)
             if not test_is_valid:
                 # Points to be added to the training samples
                 new_e = torch.index_select(test_e, 0, invalid_data_point_index)
@@ -93,4 +105,4 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
                 is_valid, _ = check_lyapunov_validity(nn_lyapunov, nn_policy, t, e, d, e_and_t,
                                                       zeros_and_t, f_of_e, gamma, derivative_lyapunov_wrt_ei,
                                                       index_list_counter_example)
-    return nn_lyapunov, nn_policy, loss_each_iter
+    return nn_lyapunov, nn_policy, loss_each_iter, training_data_each_iter, number_of_invalid_points_each_iter
