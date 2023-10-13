@@ -2,6 +2,7 @@ from training.log_messages import print_loss, print_invalid_points_count, print_
 import torch
 import numpy as np
 from sampling.sampling_const_and_functions import sample_data_points
+from plotting.plotting_util import *
 
 
 # Falsification procedure
@@ -89,6 +90,10 @@ def train(nn_lyapunov, nn_policy, t, e, e_and_t, zeros_and_t, f_of_e, b_friction
                                         test_zeros_and_t, f_of_e, gamma, derivative_lyapunov_wrt_ei,
                                         index_list_counter_example,
                                         verbose=True)
+            # Print on the same graph live
+            plot_loss(loss_list=loss_each_iter)
+            plot_data_point_num(data_point_size_list=training_data_each_iter,
+                                inv_data_point_size_list=number_of_invalid_points_each_iter)
             if not test_is_valid:
                 # Points to be added to the training samples
                 new_e = torch.index_select(test_e, 0, invalid_data_point_index)
